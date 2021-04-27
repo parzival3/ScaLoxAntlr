@@ -59,7 +59,7 @@ whileStmt
     ;
 
 block
-    : RIGHT_BRACE compilationUnit* LEFT_BRACE
+    : LEFT_BRACE compilationUnit* RIGHT_BRACE
     ;
 
 expression

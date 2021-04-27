@@ -12,15 +12,24 @@ import org.antlr.v4.runtime.tree.*
 
 
 class ParserTest extends AnyFunSuite with should.Matchers {
-  val stream = Source.fromResource( "test_antlr4_parser.lox")
-  val input: CharStream= CharStreams.fromReader(stream.reader);
-  val lexer: LoxLexer = LoxLexer(input)
-  val tokens: CommonTokenStream  = CommonTokenStream(lexer)
-  val parser: LoxParser =  LoxParser(tokens);
+
+  def getParserForResource(fileName: String): LoxParser = {
+    val stream = Source.fromResource(fileName)
+    val input: CharStream= CharStreams.fromReader(stream.reader);
+    val lexer: LoxLexer = LoxLexer(input)
+    val tokens: CommonTokenStream  = CommonTokenStream(lexer)
+    LoxParser(tokens);
+  }
 
   test(s"Test correct parser") {
-      val tree: ParseTree = parser.compilationUnit()
+      val parser = getParserForResource("test_antlr4_parser.lox")
+      val tree = parser.compilationUnit()
       println(tree.toStringTree(parser))
   }
 
+  test(s"Test correct class field assignment") {
+      val parser  =  getParserForResource("field/get_and_set_method.lox")
+      val tree = parser.compilationUnit()
+      println(tree.toStringTree(parser))
+  }
 }
