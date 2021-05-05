@@ -5,3 +5,4 @@
 /antlr/target/
 /.bsp/
 /.idea/
+/antlr/src/main/antlr4/.DS_Store
