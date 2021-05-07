@@ -3,7 +3,7 @@ package io.github.parzival3.scaloxantlr.ast
 sealed trait Expr
 case class Unary(token: TokenInstance, expr: Expr) extends Expr
 case class Binary(left: Expr, token: TokenInstance, right: Expr) extends Expr
-case class Call(callee: Expr, arguments: java.util.List[Expr]) extends Expr
+case class Call(callee: Expr, arguments: List[Expr]) extends Expr
 case class Grouping(expr: Expr) extends Expr
 case class Literal(value: TokenInstance) extends Expr
 case class Assign(value: TokenInstance, expr: Expr) extends Expr

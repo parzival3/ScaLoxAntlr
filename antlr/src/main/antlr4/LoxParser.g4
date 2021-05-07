@@ -2,126 +2,59 @@
 parser grammar LoxParser;
 
 options { tokenVocab=LoxLexer; }
+declaration
+    : compilationUnit*
+    ;
 
 compilationUnit
-    : classDecl
-    | funDecl
-    | varDecl
-    | statement
-    ;
-
-classDecl
-    : CLASS IDENTIFIER (LESS IDENTIFIER)?
-      LEFT_BRACE (function)* RIGHT_BRACE
-    ;
-
-funDecl
-    : FUN function
+    : statement #cuStatement
+    | VAR IDENTIFIER ( EQUAL expression )? SEMICOLON #cuVarDeclaration
+    | FUN function #cuFunctionDeclaration
+    | CLASS IDENTIFIER (LESS sup=IDENTIFIER)? LEFT_BRACE (function)* RIGHT_BRACE #cuClassDeclaration
     ;
 
 varDecl
-    : VAR IDENTIFIER ( EQUAL expression )? SEMICOLON
+    : VAR IDENTIFIER ( EQUAL expression )? SEMICOLON #variableDeclaration
     ;
 
 statement
-    : exprStmt
-    | forStmt
-    | ifStmt
-    | printStmt
-    | returnStmt
-    | whileStmt
-    | block
-    ;
-
-exprStmt
-    : expression SEMICOLON
-    ;
-
-forStmt
-    : FOR LEFT_PAREN ( varDecl | exprStmt | SEMICOLON )
-      expression? SEMICOLON expression? LEFT_PAREN statement
-    ;
-
-ifStmt
-    : IF LEFT_PAREN expression RIGHT_PAREN statement ( ELSE statement )?
-    ;
-
-printStmt
-    : PRINT expression SEMICOLON
-    ;
-
-returnStmt
-    : RETURN expression? SEMICOLON
-    ;
-
-whileStmt
-    : WHILE LEFT_PAREN expression RIGHT_PAREN statement
-    ;
-
-block
-    : LEFT_BRACE compilationUnit* RIGHT_BRACE
+    : LEFT_BRACE compilationUnit* RIGHT_BRACE #statementBlock
+    | IF LEFT_PAREN expression RIGHT_PAREN statement ( ELSE statement )? #ifStatement
+    | FOR LEFT_PAREN ( varDecl | expression SEMICOLON | SEMICOLON ) expression? SEMICOLON expression? LEFT_PAREN statement #forStatement
+    | WHILE LEFT_PAREN expression RIGHT_PAREN statement #whileStatement
+    | RETURN expression? SEMICOLON #returnStatement
+    | PRINT expression SEMICOLON #printStatement
+    | expression SEMICOLON #expressionStatement
     ;
 
 expression
-    : assignment
-    ;
-
-assignment
-    : (call DOT)? IDENTIFIER EQUAL assignment
-    | logic_or
-    ;
-
-logic_or
-    : logic_and ( OR logic_and )*
-    ;
-
-logic_and
-    : equality ( AND equality)*
-    ;
-
-equality
-    : comparison ( (BANG_EQUAL | EQUAL_EQUAL) comparison )*
-    ;
-
-comparison
-    : term ( ( LESS | LESS_EQUAL | GREATER_EQUAL | GREATER ) term )*
-    ;
-
-term
-    : factor ( ( MINUS | PLUS ) factor )*
-    ;
-
-factor
-    : unary ( ( SLASH | STAR ) unary )*
-    ;
-
-unary
-    : ( BANG | MINUS ) unary | call
+    : primary #primaryE
+    | call #callE
+    | prefix=(BANG | MINUS) expression #unary
+    | expression bop=(STAR | SLASH) expression #binary
+    | expression bop=(PLUS | MINUS) expression #binary
+    | expression bop=(EQUAL_EQUAL | BANG_EQUAL) expression #binary
+    | expression op=AND expression #logic
+    | expression op=OR expression #logic
+    | <assoc=right> (call DOT)? IDENTIFIER EQUAL expression #assignment
     ;
 
 call
-    : primary ( LEFT_PAREN arguments? RIGHT_PAREN | DOT IDENTIFIER )*
+    : primary ( LEFT_PAREN (expression ( COMMA expression )*)? RIGHT_PAREN | DOT IDENTIFIER )*
     ;
 
 primary
-    : BOOL_LITERAL
-    | NIL_LITERAL
-    | THIS
-    | NUMBER
-    | STRING_LITERAL
-    | IDENTIFIER
-    | LEFT_PAREN expression RIGHT_PAREN
-    | SUPER DOT IDENTIFIER
+    : LEFT_PAREN expression RIGHT_PAREN      #parenExpression                               
+    | BOOL_LITERAL #boolExpression
+    | NIL_LITERAL #nilExpression
+    | THIS #thisExpression
+    | NUMBER #numberExpression
+    | STRING_LITERAL #stringExpression
+    | IDENTIFIER #indentifierExpression
+    | SUPER DOT IDENTIFIER #superExpression
     ;
 
 
 function
-    : IDENTIFIER LEFT_PAREN parameters? RIGHT_PAREN block
-    ;
-
-parameters
-    : IDENTIFIER ( COMMA IDENTIFIER )*
-    ;
-arguments
-    : expression ( COMMA expression )*
+    : name=IDENTIFIER LEFT_PAREN (IDENTIFIER ( COMMA IDENTIFIER )*)? RIGHT_PAREN LEFT_BRACE compilationUnit* RIGHT_BRACE
     ;

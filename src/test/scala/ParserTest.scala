@@ -1,14 +1,16 @@
 package io.github.parzival3.scaloxantlr.test
 
 import io.github.parzival3.scaloxantlr.ast._
+import io.github.parzival3.scaloxantlr.antlr._
+import io.github.parzival3.scaloxantlr.builder._
 import org.scalatest._
 import flatspec._
 import matchers._
 import org.scalatest.funsuite.AnyFunSuite
 import scala.io.Source
 
-import org.antlr.v4.runtime.*
-import org.antlr.v4.runtime.tree.*
+import org.antlr.v4.runtime._
+import org.antlr.v4.runtime.tree._
 
 
 class ParserTest extends AnyFunSuite with should.Matchers {
@@ -30,6 +32,9 @@ class ParserTest extends AnyFunSuite with should.Matchers {
   test(s"Test correct class field assignment") {
       val parser  =  getParserForResource("field/get_and_set_method.lox")
       val tree = parser.compilationUnit()
+      val astBuilder = AstBuilderVisitor()
+      val ast = astBuilder.visit(tree)
+      println(ast)
       println(tree.toStringTree(parser))
   }
 }
